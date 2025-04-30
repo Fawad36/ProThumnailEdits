@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Thumbnail Editor Pro</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="max-w-7xl mx-auto">
+    <!-- Navbar -->
+    <div class="navbar">
+      <h1 class="text-3xl font-bold text-gray-800">🎨 Thumbnail Editor Pro</h1>
+      <div class="flex gap-3">
+        <button onclick="undo()">Undo</button>
+        <button onclick="redo()">Redo</button>
+        <button onclick="downloadImage()">Download</button>
+        <button onclick="resetCanvas()">Reset</button>
+        <button onclick="togglePreview()">Show/Hide Preview</button>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
+      <!-- Canvas and Preview -->
+      <div class="lg:col-span-3 canvas-container">
+        <canvas id="canvas" width="1280" height="720" class="w-full mb-4"></canvas>
+        <div class="preview-container" id="previewContainer">
+          <canvas id="previewCanvas" width="320" height="180"></canvas>
+          <div class="resize-handle"></div>
+          <p class="text-sm text-white text-center mt-2">Real-Time Preview (Drag to Move, Resize with Corner - Desktop Only)</p>
+        </div>
+      </div>
+
+      <!-- Controls -->
+      <div class="space-y-6">
+        <!-- Appearance Controls -->
+        <div class="control-group">
+          <h3>Appearance</h3>
+          <label class="text-sm text-gray-600 mt-3 block">Background Color</label>
+          <select id="backgroundColor" class="w-full">
+            <option value="#1e40af" selected>Blue</option>
+            <option value="#000000">Black</option>
+            <option value="#ffffff">White</option>
+            <option value="#333333">Dark Gray</option>
+            <option value="#e5e7eb">Light Gray</option>
+            <option value="#0d9488">Teal</option>
+          </select>
+        </div>
+
+        <!-- Image Controls -->
+        <div class="control-group">
+          <h3>Image</h3>
+          <input id="url" type="text" placeholder="YouTube URL" class="w-full">
+          <div class="flex gap-3 mt-3">
+            <button onclick="loadThumbnail()" class="flex-1">Load Thumbnail</button>
+            <input type="file" id="uploadImg" accept="image/*" class="flex-1">
+          </div>
+          <input type="file" id="internalImg" accept="image/*" class="w-full mt-3">
+          <input type="file" id="customFont" accept=".ttf,.otf" class="w-full mt-3">
+          <label class="text-sm text-gray-600 mt-3 block">Image Size</label>
+          <input id="imgSize" type="range" min="50" max="500" value="200" class="w-full">
+          <label class="text-sm text-gray-600 mt-3 block">Image Opacity</label>
+          <input id="imgOpacity" type="range" min="0" max="1" step="0.1" value="1" class="w-full">
+          <label class="text-sm text-gray-600 mt-3 block">Image Rotation (°)</label>
+          <input id="imgRotation" type="range" min="0" max="360" value="0" class="w-full">
+          <div class="mt-3">
+            <h4 class="text-sm font-semibold text-gray-600">Move Image</h4>
+            <div class="grid grid-cols-3 gap-2 mt-2">
+              <button onclick="moveImage('up')" class="bg-gray-200 p-2 rounded-lg hover:bg-gray-300">↑</button>
+              <button onclick="moveImage('left')" class="bg-gray-200 p-2 rounded-lg hover:bg-gray-300">←</button>
+              <button onclick="moveImage('right')" class="bg-gray-200 p-2 rounded-lg hover:bg-gray-300">→</button>
+              <div></div>
+              <button onclick="moveImage('down')" class="bg-gray-200 p-2 rounded-lg hover:bg-gray-300">↓</button>
+              <div></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Text Controls -->
+        <div class="control-group">
+          <h3>Text</h3>
+          <select id="template" class="w-full mb-3">
+            <option value="">Select Template</option>
+            <option value="bold">Bold Impact</option>
+            <option value="minimal">Minimal Clean</option>
+            <option value="vibrant">Vibrant Pop</option>
+          </select>
+          <div id="textInputs">
+            <div class="text-input-group mb-4">
+              <input type="text" class="overlayText w-full" placeholder="Enter Text">
+              <div class="flex gap-3 mt-3">
+                <input type="color" class="textColor w-1/2" value="#ffffff">
+                <input type="color" class="textBgColor w-1/2" value="#000000">
+              </div>
+              <label class="text-sm text-gray-600 mt-3 block">Use Gradient Background</label>
+              <input type="checkbox" class="useGradient mt-1">
+              <label class="text-sm text-gray-600 mt-3 block">Glow Effect</label>
+              <input type="range" class="glowSize w-full mt-1" min="0" max="20" value="0">
+              <select class="fontFamily w-full mt-3">
+                <option value="Inter">Inter</option>
+                <option value="Arial">Arial</option>
+                <option value="Roboto">Roboto</option>
+                <option value="Georgia">Georgia</option>
+              </select>
+              <select class="fontStyle w-full mt-3">
+                <option value="normal">Normal</option>
+                <option value="bold">Bold</option>
+                <option value="italic">Italic</option>
+              </select>
+              <input type="number" class="fontSize w-full mt-3" value="40" min="10" max="100">
+              <input type="range" class="shadowSize w-full mt-3" min="0" max="20" value="0">
+              <label class="text-sm text-gray-600">Text Shadow</label>
+              <input type="range" class="strokeSize w-full mt-3" min="0" max="5" step="0.1" value="0">
+              <label class="text-sm text-gray-600">Text Stroke</label>
+              <div class="mt-3">
+                <h4 class="text-sm font-semibold text-gray-600">Move Text</h4>
+                <div class="grid grid-cols-3 gap-2 mt-2">
+                  <button onclick="moveText(0, 'up')" class="bg-gray-200 p-2 rounded-lg hover:bg-gray-300">↑</button>
+                  <button onclick="moveText(0, 'left')" class="bg-gray-200 p-2 rounded-lg hover:bg-gray-300">←</button>
+                  <button onclick="moveText(0, 'right')" class="bg-gray-200 p-2 rounded-lg hover:bg-gray-300">→</button>
+                  <div></div>
+                  <button onclick="moveText(0, 'down')" class="bg-gray-200 p-2 rounded-lg hover:bg-gray-300">↓</button>
+                  <div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <button onclick="addTextInput()" class="w-full mt-3">Add New Text</button>
+        </div>
+
+        <!-- Emoji Controls -->
+        <div class="control-group">
+          <h3>Emojis</h3>
+          <div id="emojiPicker" class="emoji-picker"></div>
+          <label class="text-sm text-gray-600 mt-3 block">Emoji Size</label>
+          <input id="emojiSize" type="range" min="20" max="200" value="40" class="w-full">
+          <label class="text-sm text-gray-600 mt-3 block">Emoji Opacity</label>
+          <input id="emojiOpacity" type="range" min="0" max="1" step="0.1" value="1" class="w-full">
+          <div class="mt-3">
+            <h4 class="text-sm font-semibold text-gray-600">Move Emoji</h4>
+            <div class="grid grid-cols-3 gap-2 mt-2">
+              <button onclick="moveEmoji('up')" class="bg-gray-200 p-2 rounded-lg hover:bg-gray-300">↑</button>
+              <button onclick="moveEmoji('left')" class="bg-gray-200 p-2 rounded-lg hover:bg-gray-300">←</button>
+              <button onclick="moveEmoji('right')" class="bg-gray-200 p-2 rounded-lg hover:bg-gray-300">→</button>
+              <div></div>
+              <button onclick="moveEmoji('down')" class="bg-gray-200 p-2 rounded-lg hover:bg-gray-300">↓</button>
+              <div></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Layer Management -->
+        <div class="control-group">
+          <h3>Layers</h3>
+          <div id="layerList" class="text-sm"></div>
+        </div>
+
+        <!-- Image Adjustments -->
+        <div class="control-group">
+          <h3>Adjustments</h3>
+          <label class="text-sm text-gray-600">Brightness</label>
+          <input id="brightness" type="range" min="0" max="200" value="100" class="w-full">
+          <label class="text-sm text-gray-600">Contrast</label>
+          <input id="contrast" type="range" min="0" max="200" value="100" class="w-full">
+          <label class="text-sm text-gray-600">Saturation</label>
+          <input id="saturation" type="range" min="0" max="200" value="100" class="w-full">
+          <label class="text-sm text-gray-600">Grayscale</label>
+          <input id="grayscale" type="range" min="0" max="100" value="0" class="w-full">
+          <label class="text-sm text-gray-600">Sepia</label>
+          <input id="sepia" type="range" min="0" max="100" value="0" class="w-full">
+          <label class="text-sm text-gray-600">Blur</label>
+          <input id="blur" type="range" min="0" max="10" value="0" step="0.1" class="w-full">
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+      <p>Designed & Developed by <span class="font-semibold">Fawad Ali</span></p>
+      <p>Connect with me on <a href="https://wa.me/923413297208" target="_blank">WhatsApp</a></p>
+      <p class="text-sm mt-2">Crafting Unique Thumbnails with Passion 🚀</p>
+    </footer>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
