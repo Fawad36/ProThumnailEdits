@@ -29,14 +29,9 @@ function preventZoom(e) {
 // Bind Action Button Events
 function bindButtonEvents() {
   document.querySelectorAll('.action-button:not(.emoji-button)').forEach(button => {
-    // Remove existing listeners to prevent duplicates
     button.removeEventListener('click', handleButtonAction);
     button.removeEventListener('touchstart', handleButtonTouch);
-
-    // Add click event for desktop
     button.addEventListener('click', handleButtonAction);
-
-    // Add touch event for mobile
     button.addEventListener('touchstart', handleButtonTouch, { passive: false });
   });
 }
@@ -46,7 +41,7 @@ function handleButtonAction(e) {
   const button = e.currentTarget;
   const onclick = button.getAttribute('onclick');
   if (onclick) {
-    eval(onclick); // Execute the onclick function
+    eval(onclick);
   }
 }
 
@@ -56,30 +51,26 @@ function handleButtonTouch(e) {
   const button = e.currentTarget;
   const onclick = button.getAttribute('onclick');
   if (onclick) {
-    // Add a slight delay to improve touch responsiveness
     setTimeout(() => {
       eval(onclick);
     }, 100);
   }
 }
 
-// Bind Emoji Button Events
+// Bind Emoji Button Events (for picker)
 function bindEmojiButtonEvents(button, emoji) {
-  // Remove existing listeners to prevent duplicates
   button.removeEventListener('click', handleEmojiClick);
   button.removeEventListener('touchstart', handleEmojiTouch);
-
-  // Add click event for desktop
   button.addEventListener('click', handleEmojiClick);
-
-  // Add touch event for mobile
   button.addEventListener('touchstart', handleEmojiTouch, { passive: false });
 
   function handleEmojiClick() {
-    const size = parseInt(document.getElementById('emojiSize').value);
-    const opacity = parseFloat(document.getElementById('emojiOpacity').value);
+    const size = parseInt(document.getElementById('emojiSize').value) || 40;
+    const opacity = parseFloat(document.getElementById('emojiOpacity').value) || 1;
     emojis.push({ emoji, position: { x: 150, y: 150 }, size, opacity, visible: true });
     activeEmojiIndex = emojis.length - 1;
+    document.getElementById('emojiSize').value = size;
+    document.getElementById('emojiOpacity').value = opacity;
     updateLayers();
     drawImage();
     saveState();
@@ -87,13 +78,33 @@ function bindEmojiButtonEvents(button, emoji) {
 
   function handleEmojiTouch(e) {
     e.preventDefault();
-    const size = parseInt(document.getElementById('emojiSize').value);
-    const opacity = parseFloat(document.getElementById('emojiOpacity').value);
+    const size = parseInt(document.getElementById('emojiSize').value) || 40;
+    const opacity = parseFloat(document.getElementById('emojiOpacity').value) || 1;
     emojis.push({ emoji, position: { x: 150, y: 150 }, size, opacity, visible: true });
     activeEmojiIndex = emojis.length - 1;
+    document.getElementById('emojiSize').value = size;
+    document.getElementById('emojiOpacity').value = opacity;
     updateLayers();
     drawImage();
     saveState();
+  }
+}
+
+// Add Emoji from Dropdown
+function addEmojiFromSelect() {
+  const emojiSelect = document.getElementById('emojiSelect');
+  const emoji = emojiSelect.value;
+  if (emoji) {
+    const size = parseInt(document.getElementById('emojiSize').value) || 40;
+    const opacity = parseFloat(document.getElementById('emojiOpacity').value) || 1;
+    emojis.push({ emoji, position: { x: 150, y: 150 }, size, opacity, visible: true });
+    activeEmojiIndex = emojis.length - 1;
+    document.getElementById('emojiSize').value = size;
+    document.getElementById('emojiOpacity').value = opacity;
+    updateLayers();
+    drawImage();
+    saveState();
+    emojiSelect.value = '';
   }
 }
 
@@ -105,7 +116,7 @@ function toggleControlGroup(e) {
   }
 }
 
-// Bind Collapse Events to Control Group Headers
+// Bind Collapse Events
 function bindCollapseEvents() {
   document.querySelectorAll('.control-group h3').forEach(header => {
     header.removeEventListener('click', toggleControlGroup);
@@ -118,7 +129,6 @@ function bindCollapseEvents() {
 // Preview Dragging and Resizing
 let previewDragOffset = { x: 0, y: 0 };
 
-// Mouse Events for Desktop
 previewContainer.addEventListener('mousedown', (e) => {
   if (e.target.classList.contains('resize-handle')) return;
   draggingPreview = true;
@@ -144,7 +154,6 @@ document.addEventListener('mouseup', () => {
   draggingPreview = false;
 });
 
-// Touch Events for Mobile
 previewContainer.addEventListener('touchstart', (e) => {
   if (e.target.classList.contains('resize-handle')) return;
   draggingPreview = true;
@@ -185,7 +194,7 @@ function snapToTopRight() {
   }
 }
 
-// Resize Preview Dynamically
+// Resize Preview
 function resizePreview() {
   if (window.innerWidth <= 768) {
     const maxWidth = Math.min(160, window.innerWidth * 0.4);
@@ -443,7 +452,13 @@ function updateLayers() {
         <button onclick="deleteLayer('text', ${index})">Delete</button>
       </div>
     `;
-    textLayer.onclick = () => { activeTextIndex = index; drawImage(); };
+    textLayer.onclick = () => { 
+      activeTextIndex = index; 
+      activeEmojiIndex = -1;
+      document.getElementById('emojiSize').value = 40;
+      document.getElementById('emojiOpacity').value = 1;
+      drawImage(); 
+    };
     layerList.appendChild(textLayer);
   });
 
@@ -459,7 +474,13 @@ function updateLayers() {
         <button onclick="deleteLayer('emoji', ${index})">Delete</button>
       </div>
     `;
-    emojiLayer.onclick = () => { activeEmojiIndex = index; drawImage(); };
+    emojiLayer.onclick = () => { 
+      activeEmojiIndex = index; 
+      activeTextIndex = -1;
+      document.getElementById('emojiSize').value = emojis[index].size;
+      document.getElementById('emojiOpacity').value = emojis[index].opacity;
+      drawImage(); 
+    };
     layerList.appendChild(emojiLayer);
   });
 }
@@ -515,6 +536,13 @@ function deleteLayer(type, index) {
   } else if (type === 'emoji' && emojis[index]) {
     emojis.splice(index, 1);
     activeEmojiIndex = emojis.length - 1;
+    if (activeEmojiIndex >= 0) {
+      document.getElementById('emojiSize').value = emojis[activeEmojiIndex].size;
+      document.getElementById('emojiOpacity').value = emojis[activeEmojiIndex].opacity;
+    } else {
+      document.getElementById('emojiSize').value = 40;
+      document.getElementById('emojiOpacity').value = 1;
+    }
   }
   updateLayers();
   drawImage();
@@ -853,16 +881,15 @@ function drawImage() {
     previewCtx.shadowOffsetY = 0;
   });
 
-  const emojiSize = parseInt(document.getElementById('emojiSize').value);
   emojis.forEach(emoji => {
     if (!emoji.visible) return;
     ctx.save();
     ctx.globalAlpha = emoji.opacity;
-    ctx.font = `${emojiSize}px sans-serif`;
+    ctx.font = `${emoji.size}px sans-serif`;
     ctx.fillText(emoji.emoji, emoji.position.x, emoji.position.y);
     previewCtx.save();
     previewCtx.globalAlpha = emoji.opacity;
-    previewCtx.font = `${emojiSize * (previewCanvas.width / canvas.width)}px sans-serif`;
+    previewCtx.font = `${emoji.size * (previewCanvas.width / canvas.width)}px sans-serif`;
     previewCtx.fillText(emoji.emoji, emoji.position.x * (previewCanvas.width / canvas.width), emoji.position.y * (previewCanvas.width / canvas.width));
     ctx.restore();
     previewCtx.restore();
@@ -876,6 +903,7 @@ function resetCanvas() {
   });
   document.getElementById('template').value = '';
   document.getElementById('backgroundColor').value = '#1e40af';
+  document.getElementById('emojiSelect').value = '';
   document.documentElement.style.setProperty('--bg-color', '#1e40af');
   texts = [{ position: { x: 50, y: 300 }, text: '', color: '#ffffff', bgColor: '#000000', useGradient: false, fontFamily: 'Inter', fontStyle: 'normal', fontSize: 40, shadowSize: 0, strokeSize: 0, glowSize: 0, visible: true }];
   emojis = [];
@@ -890,7 +918,6 @@ function resetCanvas() {
   resetPreview();
   drawImage();
   saveState();
-  // Reset control groups to collapsed, except Adjustments
   document.querySelectorAll('.control-group').forEach(group => {
     if (!group.classList.contains('adjustments')) {
       group.classList.add('collapsed');
@@ -915,31 +942,15 @@ canvas.addEventListener('mousedown', (e) => {
   const y = e.clientY - rect.top;
 
   activeTextIndex = -1;
-  texts.forEach((text, index) => {
-    if (!text.text || !text.visible) return;
-    ctx.font = `${text.fontStyle} ${text.fontSize}px ${text.fontFamily}`;
-    const textMetrics = ctx.measureText(text.text);
-    const textWidth = textMetrics.width;
-    const textHeight = text.fontSize * 1.2;
-    if (
-      x >= text.position.x - 10 &&
-      x <= text.position.x + textWidth + 10 &&
-      y >= text.position.y - textHeight - 10 &&
-      y <= text.position.y + 10
-    ) {
-      activeTextIndex = index;
-      dragging = true;
-    }
-  });
-
-  const emojiSize = parseInt(document.getElementById('emojiSize').value);
   activeEmojiIndex = -1;
+
+  // Check for emoji selection first
   emojis.forEach((emoji, index) => {
     if (!emoji.visible) return;
-    ctx.font = `${emojiSize}px sans-serif`;
+    ctx.font = `${emoji.size}px sans-serif`;
     const emojiMetrics = ctx.measureText(emoji.emoji);
     const emojiWidth = emojiMetrics.width;
-    const emojiHeight = emojiSize;
+    const emojiHeight = emoji.size;
     if (
       x >= emoji.position.x &&
       x <= emoji.position.x + emojiWidth &&
@@ -947,10 +958,35 @@ canvas.addEventListener('mousedown', (e) => {
       y <= emoji.position.y
     ) {
       activeEmojiIndex = index;
+      document.getElementById('emojiSize').value = emojis[index].size;
+      document.getElementById('emojiOpacity').value = emojis[index].opacity;
       draggingEmoji = true;
     }
   });
 
+  // Check for text selection if no emoji is selected
+  if (activeEmojiIndex === -1) {
+    texts.forEach((text, index) => {
+      if (!text.text || !text.visible) return;
+      ctx.font = `${text.fontStyle} ${text.fontSize}px ${text.fontFamily}`;
+      const textMetrics = ctx.measureText(text.text);
+      const textWidth = textMetrics.width;
+      const textHeight = text.fontSize * 1.2;
+      if (
+        x >= text.position.x - 10 &&
+        x <= text.position.x + textWidth + 10 &&
+        y >= text.position.y - textHeight - 10 &&
+        y <= text.position.y + 10
+      ) {
+        activeTextIndex = index;
+        dragging = true;
+        document.getElementById('emojiSize').value = 40;
+        document.getElementById('emojiOpacity').value = 1;
+      }
+    });
+  }
+
+  // Check for image dragging
   if (
     uploadedImg.src && imgPosition.visible &&
     x >= imgPosition.x &&
@@ -987,19 +1023,127 @@ canvas.addEventListener('mouseup', () => {
   dragging = false;
   draggingImg = false;
   draggingEmoji = false;
+});
+
+// Touch Interactions for Canvas
+canvas.addEventListener('touchstart', (e) => {
+  const rect = canvas.getBoundingClientRect();
+  const touch = e.touches[0];
+  const x = touch.clientX - rect.left;
+  const y = touch.clientY - rect.top;
+
   activeTextIndex = -1;
+  activeEmojiIndex = -1;
+
+  // Check for emoji selection first
+  emojis.forEach((emoji, index) => {
+    if (!emoji.visible) return;
+    ctx.font = `${emoji.size}px sans-serif`;
+    const emojiMetrics = ctx.measureText(emoji.emoji);
+    const emojiWidth = emojiMetrics.width;
+    const emojiHeight = emoji.size;
+    if (
+      x >= emoji.position.x &&
+      x <= emoji.position.x + emojiWidth &&
+      y >= emoji.position.y - emojiHeight &&
+      y <= emoji.position.y
+    ) {
+      activeEmojiIndex = index;
+      document.getElementById('emojiSize').value = emojis[index].size;
+      document.getElementById('emojiOpacity').value = emojis[index].opacity;
+      draggingEmoji = true;
+    }
+  });
+
+  // Check for text selection if no emoji is selected
+  if (activeEmojiIndex === -1) {
+    texts.forEach((text, index) => {
+      if (!text.text || !text.visible) return;
+      ctx.font = `${text.fontStyle} ${text.fontSize}px ${text.fontFamily}`;
+      const textMetrics = ctx.measureText(text.text);
+      const textWidth = textMetrics.width;
+      const textHeight = text.fontSize * 1.2;
+      if (
+        x >= text.position.x - 10 &&
+        x <= text.position.x + textWidth + 10 &&
+        y >= text.position.y - textHeight - 10 &&
+        y <= text.position.y + 10
+      ) {
+        activeTextIndex = index;
+        dragging = true;
+        document.getElementById('emojiSize').value = 40;
+        document.getElementById('emojiOpacity').value = 1;
+      }
+    });
+  }
+
+  // Check for image dragging
+  if (
+    uploadedImg.src && imgPosition.visible &&
+    x >= imgPosition.x &&
+    x <= imgPosition.x + imgPosition.width &&
+    y >= imgPosition.y &&
+    y <= imgPosition.y + imgPosition.height
+  ) {
+    draggingImg = true;
+  }
+  e.preventDefault();
+});
+
+canvas.addEventListener('touchmove', (e) => {
+  const rect = canvas.getBoundingClientRect();
+  const touch = e.touches[0];
+  const x = touch.clientX - rect.left;
+  const y = touch.clientY - rect.top;
+
+  if (dragging && activeTextIndex >= 0) {
+    texts[activeTextIndex].position.x = x;
+    texts[activeTextIndex].position.y = y;
+    drawImage();
+  } else if (draggingImg) {
+    imgPosition.x = x - imgPosition.width / 2;
+    imgPosition.y = y - imgPosition.height / 2;
+    drawImage();
+  } else if (draggingEmoji && activeEmojiIndex >= 0) {
+    emojis[activeEmojiIndex].position.x = x;
+    emojis[activeEmojiIndex].position.y = y;
+    drawImage();
+  }
+  e.preventDefault();
+});
+
+canvas.addEventListener('touchend', () => {
+  if (dragging || draggingImg || draggingEmoji) saveState();
+  dragging = false;
+  draggingImg = false;
+  draggingEmoji = false;
 });
 
 // Input Listeners
-['brightness', 'contrast', 'saturation', 'grayscale', 'sepia', 'blur', 'imgSize', 'imgOpacity', 'imgRotation', 'emojiSize', 'emojiOpacity'].forEach(id =>
+['brightness', 'contrast', 'saturation', 'grayscale', 'sepia', 'blur', 'imgSize', 'imgOpacity', 'imgRotation'].forEach(id =>
   document.getElementById(id).addEventListener('input', () => {
-    if (id === 'emojiSize' && activeEmojiIndex >= 0) {
-      emojis[activeEmojiIndex].size = parseInt(document.getElementById('emojiSize').value);
-    }
     drawImage();
     saveState();
   })
 );
+
+// Emoji Size Listener
+document.getElementById('emojiSize').addEventListener('input', () => {
+  if (activeEmojiIndex >= 0 && emojis[activeEmojiIndex]) {
+    emojis[activeEmojiIndex].size = parseInt(document.getElementById('emojiSize').value);
+    drawImage();
+    saveState();
+  }
+});
+
+// Emoji Opacity Listener
+document.getElementById('emojiOpacity').addEventListener('input', () => {
+  if (activeEmojiIndex >= 0 && emojis[activeEmojiIndex]) {
+    emojis[activeEmojiIndex].opacity = parseFloat(document.getElementById('emojiOpacity').value);
+    drawImage();
+    saveState();
+  }
+});
 
 // Window Resize Handler
 window.addEventListener('resize', resizePreview);
