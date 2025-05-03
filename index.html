@@ -155,6 +155,7 @@
       border: 1px solid #d1d5db;
       padding: 0.5rem;
       font-size: 0.875rem;
+      touch-action: manipulation;
     }
 
     button {
@@ -167,6 +168,11 @@
     button:hover {
       background: #1e3a8a;
       transform: scale(1.05);
+    }
+
+    .action-button {
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent;
     }
 
     .add-text-button {
@@ -200,6 +206,7 @@
       border: none;
       cursor: pointer;
       padding: 0.5rem;
+      touch-action: manipulation;
     }
 
     .emoji-picker button:hover {
@@ -287,6 +294,7 @@
       padding: 0.25rem 0.5rem;
       border: none;
       cursor: pointer;
+      touch-action: manipulation;
     }
 
     .layer-item button:hover {
@@ -310,6 +318,7 @@
       padding: 0.5rem 1rem;
       border-radius: 8px;
       font-weight: 600;
+      touch-action: manipulation;
     }
 
     .navbar button:hover {
@@ -429,12 +438,9 @@
           <input id="url" type="text" placeholder="YouTube URL" class="w-full">
           <div class="flex gap-3 mt-3">
             <button onclick="loadThumbnail()" class="flex-1">Load Thumbnail</button>
-            
             <input type="file" id="uploadImg" accept="image/*" class="flex-1">
           </div>
-          
           <input type="file" id="internalImg" accept="image/*" class="w-full mt-3">
-         
           <input type="file" id="customFont" accept=".ttf,.otf" class="w-full mt-3">
           <label class="text-sm text-gray-600 mt-3 block">Image Size</label>
           <input id="imgSize" type="range" min="50" max="500" value="200" class="w-full">
@@ -445,11 +451,11 @@
           <div class="mt-3">
             <h4 class="text-sm font-semibold text-gray-600">Move Image</h4>
             <div class="grid grid-cols-3 gap-2 mt-2">
-              <button onclick="moveImage('up')" class="bg-blue-200 p-2 rounded-lg hover:bg-gray-300">↑</button>
-              <button onclick="moveImage('left')" class="bg-blue-200 p-2 rounded-lg hover:bg-gray-300">←</button>
-              <button onclick="moveImage('right')" class="bg-blue-200 p-2 rounded-lg hover:bg-gray-300">→</button>
+              <button onclick="moveImage('up')" class="bg-blue-200 p-2 rounded-lg hover:bg-gray-300 action-button">↑</button>
+              <button onclick="moveImage('left')" class="bg-blue-200 p-2 rounded-lg hover:bg-gray-300 action-button">←</button>
+              <button onclick="moveImage('right')" class="bg-blue-200 p-2 rounded-lg hover:bg-gray-300 action-button">→</button>
               <div></div>
-              <button onclick="moveImage('down')" class="bg-blue-200 p-2 rounded-lg hover:bg-gray-300">↓</button>
+              <button onclick="moveImage('down')" class="bg-blue-200 p-2 rounded-lg hover:bg-gray-300 action-button">↓</button>
               <div></div>
             </div>
           </div>
@@ -494,18 +500,17 @@
               <div class="mt-3">
                 <h4 class="text-sm font-semibold text-gray-600">Move Text</h4>
                 <div class="grid grid-cols-3 gap-2 mt-2">
-                  <button onclick="moveText(0, 'up')" class="bg-gray-200 p-2 rounded-lg hover:bg-gray-300">↑</button>
-                  <button onclick="moveText(0, 'left')" class="bg-gray-200 p-2 rounded-lg hover:bg-gray-300">←</button>
-                  <button onclick="moveText(0, 'right')" class="bg-gray-200 p-2 rounded-lg hover:bg-gray-300">→</button>
+                  <button onclick="moveText(0, 'up')" class="bg-gray-200 p-2 rounded-lg hover:bg-gray-300 action-button">↑</button>
+                  <button onclick="moveText(0, 'left')" class="bg-gray-200 p-2 rounded-lg hover:bg-gray-300 action-button">←</button>
+                  <button onclick="moveText(0, 'right')" class="bg-gray-200 p-2 rounded-lg hover:bg-gray-300 action-button">→</button>
                   <div></div>
-                  <button onclick="moveText(0, 'down')" class="bg-gray-200 p-2 rounded-lg hover:bg-gray-300">↓</button>
-                  
+                  <button onclick="moveText(0, 'down')" class="bg-gray-200 p-2 rounded-lg hover:bg-gray-300 action-button">↓</button>
                   <div></div>
                 </div>
               </div>
             </div>
           </div>
-          <button onclick="addTextInput()" class="w-full mt-3 add-text-button">Add New Text</button>
+          <button onclick="addTextInput()" class="w-full mt-3 add-text-button action-button">Add New Text</button>
         </div>
 
         <!-- Emoji Controls -->
@@ -519,11 +524,11 @@
           <div class="mt-3">
             <h4 class="text-sm font-semibold text-gray-600">Move Emoji</h4>
             <div class="grid grid-cols-3 gap-2 mt-2">
-              <button onclick="moveEmoji('up')" class="bg-blue-200 p-2 rounded-lg hover:bg-gray-300">↑</button>
-              <button onclick="moveEmoji('left')" class="bg-blue-200 p-2 rounded-lg hover:bg-gray-300">←</button>
-              <button onclick="moveEmoji('right')" class="bg-blue-200 p-2 rounded-lg hover:bg-gray-300">→</button>
+              <button onclick="moveEmoji('up')" class="bg-blue-200 p-2 rounded-lg hover:bg-gray-300 action-button">↑</button>
+              <button onclick="moveEmoji('left')" class="bg-blue-200 p-2 rounded-lg hover:bg-gray-300 action-button">←</button>
+              <button onclick="moveEmoji('right')" class="bg-blue-200 p-2 rounded-lg hover:bg-gray-300 action-button">→</button>
               <div></div>
-              <button onclick="moveEmoji('down')" class="bg-blue-200 p-2 rounded-lg hover:bg-gray-300">↓</button>
+              <button onclick="moveEmoji('down')" class="bg-blue-200 p-2 rounded-lg hover:bg-gray-300 action-button">↓</button>
               <div></div>
             </div>
           </div>

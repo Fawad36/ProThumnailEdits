@@ -21,19 +21,46 @@ let customFonts = [];
 
 const emojiList = ['😀', '😂', '😍', '🔥', '⭐', '🚀', '🎉', '💡', '👀', '👍', '❤️', '🎥', '⚡', '🌟', '💥', '🦁', '🎨', '🌈', '🍎', '🏆', '🎸', '🍕', '⚽', '📸', '🎄'];
 
-// Prevent Zoom on Buttons
+// Prevent Zoom and Default Behaviors
 function preventZoom(e) {
   e.preventDefault();
 }
 
-// Bind touchstart to movement buttons and Add New Text button
+// Bind Action Button Events
 function bindButtonEvents() {
-  document.querySelectorAll('.grid-cols-3 button').forEach(button => {
-    button.addEventListener('touchstart', preventZoom);
+  document.querySelectorAll('.action-button').forEach(button => {
+    // Remove existing listeners to prevent duplicates
+    button.removeEventListener('click', handleButtonAction);
+    button.removeEventListener('touchstart', handleButtonTouch);
+
+    // Add click event for desktop
+    button.addEventListener('click', handleButtonAction);
+
+    // Add touch event for mobile
+    button.addEventListener('touchstart', handleButtonTouch, { passive: false });
   });
-  document.querySelectorAll('.add-text-button').forEach(button => {
-    button.addEventListener('touchstart', preventZoom);
-  });
+}
+
+// Handle Button Click
+function handleButtonAction(e) {
+  const button = e.currentTarget;
+  const onclick = button.getAttribute('onclick');
+  if (onclick) {
+    eval(onclick); // Execute the onclick function
+  }
+}
+
+// Handle Button Touch
+function handleButtonTouch(e) {
+  e.preventDefault();
+  const button = e.currentTarget;
+  const onclick = button.getAttribute('onclick');
+  if (onclick) {
+    // Add a slight delay to improve touch responsiveness
+    setTimeout(() => {
+      eval(onclick);
+    }, 100);
+  }
 }
 
 // Toggle Control Group Collapse
@@ -47,9 +74,10 @@ function toggleControlGroup(e) {
 // Bind Collapse Events to Control Group Headers
 function bindCollapseEvents() {
   document.querySelectorAll('.control-group h3').forEach(header => {
-    header.removeEventListener('click', toggleControlGroup); // Prevent duplicate listeners
+    header.removeEventListener('click', toggleControlGroup);
+    header.removeEventListener('touchstart', preventZoom);
     header.addEventListener('click', toggleControlGroup);
-    header.addEventListener('touchstart', preventZoom);
+    header.addEventListener('touchstart', preventZoom, { passive: false });
   });
 }
 
@@ -114,7 +142,7 @@ document.addEventListener('touchend', () => {
 // Snap to Top-Right on Mobile
 function snapToTopRight() {
   if (window.innerWidth <= 768) {
-    previewContainer.style.left = `${window.innerWidth - 160 - 8}px`; // 160px width + 0.5rem padding
+    previewContainer.style.left = `${window.innerWidth - 160 - 8}px`;
     previewContainer.style.top = '0.5rem';
     previewContainer.style.width = '160px';
     previewContainer.style.height = '90px';
@@ -170,6 +198,7 @@ function populateEmojiPicker() {
   emojiList.forEach(emoji => {
     const button = document.createElement('button');
     button.textContent = emoji;
+    button.classList.add('action-button');
     button.onclick = () => {
       const size = parseInt(document.getElementById('emojiSize').value);
       const opacity = parseFloat(document.getElementById('emojiOpacity').value);
@@ -181,6 +210,7 @@ function populateEmojiPicker() {
     };
     picker.appendChild(button);
   });
+  bindButtonEvents();
 }
 
 // Add Text Input
@@ -218,11 +248,11 @@ function addTextInput() {
     <div class="mt-3">
       <h4 class="text-sm font-semibold text-gray-600">Move Text</h4>
       <div class="grid grid-cols-3 gap-2 mt-2">
-        <button onclick="moveText(${texts.length}, 'up')" class="bg-gray-200 p-2 rounded-lg hover:bg-gray-300">↑</button>
-        <button onclick="moveText(${texts.length}, 'left')" class="bg-gray-200 p-2 rounded-lg hover:bg-gray-300">←</button>
-        <button onclick="moveText(${texts.length}, 'right')" class="bg-gray-200 p-2 rounded-lg hover:bg-gray-300">→</button>
+        <button onclick="moveText(${texts.length}, 'up')" class="bg-gray-200 p-2 rounded-lg hover:bg-gray-300 action-button">↑</button>
+        <button onclick="moveText(${texts.length}, 'left')" class="bg-gray-200 p-2 rounded-lg hover:bg-gray-300 action-button">←</button>
+        <button onclick="moveText(${texts.length}, 'right')" class="bg-gray-200 p-2 rounded-lg hover:bg-gray-300 action-button">→</button>
         <div></div>
-        <button onclick="moveText(${texts.length}, 'down')" class="bg-gray-200 p-2 rounded-lg hover:bg-gray-300">↓</button>
+        <button onclick="moveText(${texts.length}, 'down')" class="bg-gray-200 p-2 rounded-lg hover:bg-gray-300 action-button">↓</button>
         <div></div>
       </div>
     </div>
@@ -577,11 +607,11 @@ function updateTextInputs() {
       <div class="mt-3">
         <h4 class="text-sm font-semibold text-gray-600">Move Text</h4>
         <div class="grid grid-cols-3 gap-2 mt-2">
-          <button onclick="moveText(${index}, 'up')" class="bg-gray-200 p-2 rounded-lg hover:bg-gray-300">↑</button>
-          <button onclick="moveText(${index}, 'left')" class="bg-gray-200 p-2 rounded-lg hover:bg-gray-300">←</button>
-          <button onclick="moveText(${index}, 'right')" class="bg-gray-200 p-2 rounded-lg hover:bg-gray-300">→</button>
+          <button onclick="moveText(${index}, 'up')" class="bg-gray-200 p-2 rounded-lg hover:bg-gray-300 action-button">↑</button>
+          <button onclick="moveText(${index}, 'left')" class="bg-gray-200 p-2 rounded-lg hover:bg-gray-300 action-button">←</button>
+          <button onclick="moveText(${index}, 'right')" class="bg-gray-200 p-2 rounded-lg hover:bg-gray-300 action-button">→</button>
           <div></div>
-          <button onclick="moveText(${index}, 'down')" class="bg-gray-200 p-2 rounded-lg hover:bg-gray-300">↓</button>
+          <button onclick="moveText(${index}, 'down')" class="bg-gray-200 p-2 rounded-lg hover:bg-gray-300 action-button">↓</button>
           <div></div>
         </div>
       </div>
