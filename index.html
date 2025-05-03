@@ -175,7 +175,7 @@
       -webkit-tap-highlight-color: transparent;
     }
 
-    .add-text-button {
+    .add-text-button, .add-emoji-button {
       background: #0d9488;
       color: white;
       font-weight: 600;
@@ -183,7 +183,7 @@
       border-radius: 8px;
     }
 
-    .add-text-button:hover {
+    .add-text-button:hover, .add-emoji-button:hover {
       background: #0f766e;
       transform: scale(1.05);
     }
@@ -516,6 +516,35 @@
         <!-- Emoji Controls -->
         <div class="control-group">
           <h3>Emojis</h3>
+          <select id="emojiSelect" class="w-full mb-3">
+            <option value="">Select Emoji</option>
+            <option value="😀">😀 Smiley</option>
+            <option value="😂">😂 Laughing</option>
+            <option value="😍">😍 Heart Eyes</option>
+            <option value="🔥">🔥 Fire</option>
+            <option value="⭐">⭐ Star</option>
+            <option value="🚀">🚀 Rocket</option>
+            <option value="🎉">🎉 Party</option>
+            <option value="💡">💡 Light Bulb</option>
+            <option value="👀">👀 Eyes</option>
+            <option value="👍">👍 Thumbs Up</option>
+            <option value="❤️">❤️ Heart</option>
+            <option value="🎥">🎥 Camera</option>
+            <option value="⚡">⚡ Lightning</option>
+            <option value="🌟">🌟 Sparkles</option>
+            <option value="💥">💥 Explosion</option>
+            <option value="🦁">🦁 Lion</option>
+            <option value="🎨">🎨 Palette</option>
+            <option value="🌈">🌈 Rainbow</option>
+            <option value="🍎">🍎 Apple</option>
+            <option value="🏆">🏆 Trophy</option>
+            <option value="🎸">🎸 Guitar</option>
+            <option value="🍕">🍕 Pizza</option>
+            <option value="⚽">⚽ Soccer</option>
+            <option value="📸">📸 Camera</option>
+            <option value="🎄">🎄 Christmas Tree</option>
+          </select>
+          <button onclick="addEmojiFromSelect()" class="w-full mb-3 add-emoji-button action-button">Add Emoji</button>
           <div id="emojiPicker" class="emoji-picker"></div>
           <label class="text-sm text-gray-600 mt-3 block">Emoji Size</label>
           <input id="emojiSize" type="range" min="20" max="200" value="40" class="w-full">
