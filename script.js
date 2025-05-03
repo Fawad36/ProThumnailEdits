@@ -28,7 +28,7 @@ function preventZoom(e) {
 
 // Bind Action Button Events
 function bindButtonEvents() {
-  document.querySelectorAll('.action-button').forEach(button => {
+  document.querySelectorAll('.action-button:not(.emoji-button)').forEach(button => {
     // Remove existing listeners to prevent duplicates
     button.removeEventListener('click', handleButtonAction);
     button.removeEventListener('touchstart', handleButtonTouch);
@@ -60,6 +60,40 @@ function handleButtonTouch(e) {
     setTimeout(() => {
       eval(onclick);
     }, 100);
+  }
+}
+
+// Bind Emoji Button Events
+function bindEmojiButtonEvents(button, emoji) {
+  // Remove existing listeners to prevent duplicates
+  button.removeEventListener('click', handleEmojiClick);
+  button.removeEventListener('touchstart', handleEmojiTouch);
+
+  // Add click event for desktop
+  button.addEventListener('click', handleEmojiClick);
+
+  // Add touch event for mobile
+  button.addEventListener('touchstart', handleEmojiTouch, { passive: false });
+
+  function handleEmojiClick() {
+    const size = parseInt(document.getElementById('emojiSize').value);
+    const opacity = parseFloat(document.getElementById('emojiOpacity').value);
+    emojis.push({ emoji, position: { x: 150, y: 150 }, size, opacity, visible: true });
+    activeEmojiIndex = emojis.length - 1;
+    updateLayers();
+    drawImage();
+    saveState();
+  }
+
+  function handleEmojiTouch(e) {
+    e.preventDefault();
+    const size = parseInt(document.getElementById('emojiSize').value);
+    const opacity = parseFloat(document.getElementById('emojiOpacity').value);
+    emojis.push({ emoji, position: { x: 150, y: 150 }, size, opacity, visible: true });
+    activeEmojiIndex = emojis.length - 1;
+    updateLayers();
+    drawImage();
+    saveState();
   }
 }
 
@@ -198,19 +232,10 @@ function populateEmojiPicker() {
   emojiList.forEach(emoji => {
     const button = document.createElement('button');
     button.textContent = emoji;
-    button.classList.add('action-button');
-    button.onclick = () => {
-      const size = parseInt(document.getElementById('emojiSize').value);
-      const opacity = parseFloat(document.getElementById('emojiOpacity').value);
-      emojis.push({ emoji, position: { x: 150, y: 150 }, size, opacity, visible: true });
-      activeEmojiIndex = emojis.length - 1;
-      updateLayers();
-      drawImage();
-      saveState();
-    };
+    button.classList.add('emoji-button');
     picker.appendChild(button);
+    bindEmojiButtonEvents(button, emoji);
   });
-  bindButtonEvents();
 }
 
 // Add Text Input
